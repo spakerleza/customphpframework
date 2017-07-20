@@ -1,0 +1,16 @@
+Options -Indexes
+DirectoryIndex index.php
+
+Options -MultiViews
+
+RewriteEngine On
+RewriteBase /joyponzi/index.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+ErrorDocument 400 /ponzi/public/error/400error.html
+ErrorDocument 401 /ponzi/public/error/401error.html
+ErrorDocument 403 /ponzi/public/error/403error.html
+ErrorDocument 404 /ponzi/public/error/404error.html
+ErrorDocument 500 /ponzi/public/error/500error.html
