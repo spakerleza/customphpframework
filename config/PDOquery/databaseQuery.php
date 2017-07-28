@@ -16,10 +16,6 @@ require "dbconnect.php";
  *
  * @access public
  *
- *
- *  @see coreModel class for @example on how to instantiate dbQuery. 
- * 
- * @uses read dbQuery method documentations to learn how to use each methods.
  * 
  * /--------------------------------------------------------------/
  * /                              WARNING!                         /
@@ -49,7 +45,7 @@ class dbQuery
     private $logicalType  = ""; // stores Logic use in query with LIKE operator
     private $executeType  = ""; // Takes in the db execution query type @example (INSERT, DELETE, UPDATE);
     private $lastInsertId = ""; // Stores the last inserted id of user when INSERT query is executed
-    
+    private $equatorType  = "=";
     /*
      * dbQuery::__construct()
      * 
@@ -58,7 +54,6 @@ class dbQuery
     public function __construct()
     {
         $this->db = dataBase::getDatabase()->getConnection(); //db Instance (From config/database.php)
-
     }
 
     /**
@@ -169,9 +164,16 @@ class dbQuery
      * @param mixed $where
      * @return
      */
-    public function where($where = [])
+    public function where($where = [], $equatorType=null)
     {
         $cond = " WHERE ";
+
+        if ($equatorType !== null) {
+            $this->equatorType = $equatorType;
+        } else {
+            $this->equatorType = "=";
+        }
+    
         return $this->setData($cond, $where);
     }
 
@@ -194,7 +196,7 @@ class dbQuery
      * @param mixed $columns
      * @return
      */
-    public function cond($condType, $columns = [])
+    public function cond($condType, $columns = [], $equatorType=null)
     { 
         static $i = 0;
 
@@ -210,6 +212,11 @@ class dbQuery
             default:
                 # code...
                 break;
+        }
+        if ($equatorType !== null) {
+            $this->equatorType = $equatorType;
+        } else {
+            $this->equatorType = "=";
         }
         $new_key = array();
         $new_value = array();
@@ -560,6 +567,8 @@ class dbQuery
         try
         {
             $this->result = $this->db->prepare($this->stmt);
+
+            
            
             unset($this->stmt); // Clear query statements
 
@@ -672,6 +681,7 @@ class dbQuery
      */
     public function getLastInsertId()
     {
+        
         if ($this->lastInsertId)
         {
             $id = (int)$this->lastInsertId;
@@ -734,7 +744,7 @@ class dbQuery
             
             
             $this->bindData[$key2] = $var;
-            $this->stmt .= $cond . $key1 . "=:" . $key2 . ","; 
+            $this->stmt .= $cond . $key1 . "$this->equatorType:" . $key2 . ","; 
 
            
         }
